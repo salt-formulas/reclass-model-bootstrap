@@ -1,0 +1,9 @@
+parameters:
+  _param:
+    cluster_domain: default.local
+    cluster_name: default
+    infra_config_deploy_address: 192.168.10.90
+    infra_config_address: 172.16.10.100
+    infra_config_hostname: cfg01
+    linux_system_repo_mcp_salt_version: nightly
+  

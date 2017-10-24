@@ -1,0 +1,29 @@
+parameters:
+  _param:
+    elasticsearch_replicas: 1
+    docker_image_elasticsearch: docker.elastic.co/elasticsearch/elasticsearch:5.4.1
+    elasticsearch_cluster_name: oss-cluster
+    elasticsearch_xpack_security_enabled: 'false'
+    elasticsearch_discovery_zen_minimum_master_nodes: 1
+    elasticsearch_discovery_type: single-node
+  docker:
+    client:
+      stack:
+        elasticsearch:
+          environment:
+            cluster.name: ${_param:elasticsearch_cluster_name}
+            xpack.security.enabled: ${_param:elasticsearch_xpack_security_enabled}
+            discovery.zen.minimum_master_nodes: ${_param:elasticsearch_discovery_zen_minimum_master_nodes}
+            discovery.type: ${_param:elasticsearch_discovery_type}
+          service:
+            cluster:
+              image: ${_param:docker_image_elasticsearch}
+              deploy:
+                replicas: ${_param:elasticsearch_replicas}
+                restart_policy:
+                  condition: any
+              ports:
+                - ${_param:haproxy_elasticsearch_http_exposed_port}:${_param:haproxy_elasticsearch_http_bind_port}
+                - ${_param:haproxy_elasticsearch_binary_exposed_port}:${_param:haproxy_elasticsearch_binary_bind_port}
+              volumes:
+                - /srv/volumes/elasticsearch:/usr/share/elasticsearch/data

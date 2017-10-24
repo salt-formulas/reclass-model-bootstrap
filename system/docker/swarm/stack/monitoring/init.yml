@@ -1,0 +1,105 @@
+classes:
+- system.prometheus.alertmanager.container
+- system.prometheus.pushgateway.container
+- system.prometheus.remote_storage_adapter.container
+- system.prometheus.server.container
+- system.docker.swarm.stack.monitoring.remote_agent
+parameters:
+  docker:
+    client:
+      stack:
+        monitoring:
+          network:
+            monitoring:
+              driver: overlay
+              driver_opts:
+                encrypted: 1
+          service:
+            remote_storage_adapter:
+              networks:
+                - monitoring
+              deploy:
+                replicas: 1
+                labels:
+                  com.mirantis.monitoring: "remote_storage_adapter"
+                restart_policy:
+                  condition: any
+              labels:
+                com.mirantis.monitoring: "remote_storage_adapter"
+              image: ${_param:docker_image_remote_storage_adapter}
+              ports:
+                - 15015:${prometheus:remote_storage_adapter:bind:port}
+              environment:
+                bind_port: ${prometheus:remote_storage_adapter:bind:port}
+                bind_address: ${prometheus:remote_storage_adapter:bind:address}
+                influxdb_retention_policy: 'lma'
+                influxdb_url: ${_param:prometheus_influxdb_url}
+                influxdb_db: ${_param:prometheus_influxdb_db}
+                influxdb_username: ${_param:prometheus_influxdb_username}
+                influxdb_password: ${_param:prometheus_influxdb_password}
+            alertmanager:
+              networks:
+                - monitoring
+              deploy:
+                replicas: 2
+                labels:
+                  com.mirantis.monitoring: "alertmanager"
+                restart_policy:
+                  condition: any
+              labels:
+                com.mirantis.monitoring: "alertmanager"
+              image: ${_param:docker_image_alertmanager}
+              ports:
+                - 15011:${prometheus:alertmanager:bind:port}
+              volumes:
+                - ${prometheus:alertmanager:dir:config}:${_param:prometheus_alertmanager_config_directory}
+                - ${prometheus:alertmanager:dir:data}:${_param:prometheus_alertmanager_data_directory}
+              environment:
+                config_dir: ${_param:prometheus_alertmanager_config_directory}
+                data_dir: ${_param:prometheus_alertmanager_data_directory}
+                bind_port: ${prometheus:alertmanager:bind:port}
+                bind_address: ${prometheus:alertmanager:bind:address}
+                discovery_domain: 'monitoring_alertmanager'
+            pushgateway:
+              networks:
+                - monitoring
+              deploy:
+                replicas: 2
+                labels:
+                  com.mirantis.monitoring: "pushgateway"
+                restart_policy:
+                  condition: any
+              environment:
+                bind_port: ${prometheus:pushgateway:bind:port}
+                bind_address: ${prometheus:pushgateway:bind:address}
+              labels:
+                com.mirantis.monitoring: "pushgateway"
+              image: ${_param:docker_image_pushgateway}
+              ports:
+                - 15012:${prometheus:pushgateway:bind:port}
+            server:
+              networks:
+                - monitoring
+              deploy:
+                replicas: 1
+                labels:
+                  com.mirantis.monitoring: "prometheus"
+                restart_policy:
+                  condition: any
+              labels:
+                com.mirantis.monitoring: "prometheus"
+              image: ${_param:docker_image_prometheus}
+              ports:
+                - 15010:${prometheus:server:bind:port}
+              volumes:
+                - ${prometheus:server:dir:config}:${_param:prometheus_server_config_directory}
+                - ${prometheus:server:dir:data}:${_param:prometheus_server_data_directory}
+              environment:
+                PROMETHEUS_CONFIG_DIR: ${_param:prometheus_server_config_directory}
+                PROMETHEUS_DATA_DIR: ${_param:prometheus_server_data_directory}
+                PROMETHEUS_BIND_PORT: ${prometheus:server:bind:port}
+                PROMETHEUS_BIND_ADDRESS: ${prometheus:server:bind:address}
+                PROMETHEUS_STORAGE_LOCAL_ENGINE: ${prometheus:server:storage:local:engine}
+                PROMETHEUS_STORAGE_LOCAL_RETENTION: ${prometheus:server:storage:local:retention}
+                PROMETHEUS_STORAGE_LOCAL_TARGET_HEAP_SIZE: ${prometheus:server:storage:local:target_heap_size}
+                PROMETHEUS_STORAGE_LOCAL_NUM_FINGERPRINT_MUTEXES: ${prometheus:server:storage:local:num_fingerprint_mutexes}

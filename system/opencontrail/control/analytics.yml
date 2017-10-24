@@ -1,0 +1,31 @@
+classes:
+- service.haproxy.proxy.single
+- service.keepalived.cluster.single
+- service.opencontrail.control.analytics
+- system.haproxy.proxy.listen.opencontrail.analytics
+parameters:
+# Temprorary fix for MOS9 packages to pin old version of kafka
+  linux:
+    system:
+      package:
+        librdkafka1:
+          version: 0.9.0-0contrail0
+          hold: true
+        python-kafka:
+          version: 1.0.1-0contrail1
+          hold: true
+      kernel:
+        modules:
+        - nf_conntrack_ipv4
+  opencontrail:
+    common:
+      identity:
+        host: ${_param:openstack_control_address}
+      network:
+        host: ${_param:opencontrail_control_address}
+    collector:
+      discovery:
+        host: ${_param:opencontrail_control_address}
+    database:
+      discovery:
+        host: ${_param:opencontrail_control_address}

@@ -1,0 +1,28 @@
+classes:
+- service.neutron.control.single
+parameters:
+  linux:
+    system:
+      package:
+        python-pymysql:
+          fromrepo: ${_param:openstack_version}
+          version: latest
+  neutron:
+    server:
+      database:
+        host: ${_param:single_address}
+  mysql:
+    server:
+      database:
+        neutron:
+          encoding: utf8
+          users:
+          - name: neutron
+            password: ${_param:mysql_neutron_password}
+            host: '%'
+            rights: all
+          - name: neutron
+            password: ${_param:mysql_neutron_password}
+            host: ${_param:single_address}
+            rights: all
+

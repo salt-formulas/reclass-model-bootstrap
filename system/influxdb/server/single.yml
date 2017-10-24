@@ -1,0 +1,21 @@
+classes:
+- service.influxdb.server.single
+- system.influxdb.server.tmpfs_wal
+parameters:
+  influxdb:
+    server:
+      enabled: true
+      http:
+        enabled: true
+        bind:
+          address: ${_param:single_address}
+          port: 8086
+      admin:
+        enabled: true
+        bind:
+          address: ${_param:single_address}
+          port: 8083
+        user:
+          enabled: true
+          name: 'root'
+          password: ${_param:influxdb_admin_password}

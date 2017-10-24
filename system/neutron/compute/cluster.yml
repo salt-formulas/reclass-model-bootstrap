@@ -1,0 +1,26 @@
+classes:
+- service.neutron.compute.single
+parameters:
+  _param:
+    neutron_enable_qos: False
+    neutron_enable_vlan_aware_vms: False
+  linux:
+    system:
+      package:
+        python-pymysql:
+          fromrepo: ${_param:openstack_version}
+          version: latest
+  neutron:
+    compute:
+      dvr: ${_param:neutron_compute_dvr}
+      qos: ${_param:neutron_enable_qos}
+      vlan_aware_vms: ${_param:neutron_enable_vlan_aware_vms}
+      agent_mode: ${_param:neutron_compute_agent_mode}
+      external_access: ${_param:neutron_compute_external_access}
+      backend:
+        tenant_network_types: ${_param:neutron_tenant_network_types}"
+      message_queue:
+        members:
+          - host: ${_param:openstack_message_queue_node01_address}
+          - host: ${_param:openstack_message_queue_node02_address}
+          - host: ${_param:openstack_message_queue_node03_address}

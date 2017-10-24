@@ -1,0 +1,4 @@
+classes:
+- system.linux.system.single
+- system.linux.network.dynamic_hosts
+- cluster.default.infra

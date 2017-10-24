@@ -1,0 +1,58 @@
+parameters:
+  _param:
+    rundeck_cis_os_auth_url: none
+    rundeck_cis_os_username: admin
+    rundeck_cis_os_password: password
+    rundeck_cis_os_project_name: admin
+    rundeck_cis_os_domain_id: default
+    rundeck_cis_jobs_repository: https://gerrit.mcp.mirantis.net/oss/rundeck-cis-jobs
+    rundeck_cis_jobs_revision: master
+    rundeck_cis_elasticsearch_url: none
+    rundeck_cis_os_docker_image: docker-prod-local.artifactory.mirantis.com/mirantis/oss/cis-openstack:latest
+  rundeck:
+    client:
+      project:
+        cicd:
+          description: "CI/CD Runbooks"
+          node:
+            node01:
+              nodename: ${_param:cluster_node01_name}.${_param:cluster_domain}
+              hostname: ${_param:cluster_node01_address}
+              username: ${_param:rundeck_runbook_user}
+              tags: [cicd, docker]
+            node02:
+              nodename: ${_param:cluster_node02_name}.${_param:cluster_domain}
+              hostname: ${_param:cluster_node02_address}
+              username: ${_param:rundeck_runbook_user}
+              tags: [cicd, docker]
+            node03:
+              nodename: ${_param:cluster_node03_name}.${_param:cluster_domain}
+              hostname: ${_param:cluster_node03_address}
+              username: ${_param:rundeck_runbook_user}
+              tags: [cicd, docker]
+          plugin:
+            import:
+              address: ${_param:rundeck_cis_jobs_repository}
+              branch: ${_param:rundeck_cis_jobs_revision}
+      secret:
+        cis/elasticsearch/url:
+          type: password
+          content: ${_param:rundeck_cis_elasticsearch_url}
+        cis/openstack/auth_url:
+          type: password
+          content: ${_param:rundeck_cis_os_auth_url}
+        cis/openstack/username:
+          type: password
+          content: ${_param:rundeck_cis_os_username}
+        cis/openstack/password:
+          type: password
+          content: ${_param:rundeck_cis_os_password}
+        cis/openstack/project_name:
+          type: password
+          content: ${_param:rundeck_cis_os_project_name}
+        cis/openstack/domain_id:
+          type: password
+          content: ${_param:rundeck_cis_os_domain_id}
+        cis/openstack/image:
+          type: password
+          content: ${_param:rundeck_cis_os_docker_image}

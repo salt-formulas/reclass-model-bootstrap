@@ -1,0 +1,105 @@
+classes:
+- service.git.client
+- system.linux.system.repo.mcp.salt
+- system.salt.master.api
+- system.salt.master.pkg
+- system.reclass.storage.salt
+- cluster.default
+parameters:
+  _param:
+    reclass_data_repository: "https://github.com/salt-formulas/reclass-model-bootstrap.git"
+    reclass_data_revision: master
+    reclass_config_master: ${_param:infra_config_deploy_address}
+    single_address: ${_param:infra_config_address}
+    salt_master_host: 127.0.0.1
+    salt_master_base_environment: prd
+    salt_api_password_hash: "$6$sGnRlxGf$al5jMCetLP.vfI/fTl3Z0N7Za1aeiexL487jAtyRABVfT3NlwZxQGVhO7S1N8OwS/34VHYwZQA8lkXwKMN/GS1"
+  salt:
+    master:
+      reactor:
+        reclass/minion/classify:
+        - salt://reclass/reactor/node_register.sls
+  reclass:
+    storage:
+      class_mapping:
+        common_node:
+          expression: all
+          node_param:
+            single_address:
+              value_template: <<node_control_ip>>
+            linux_system_codename:
+              value_template: <<node_os>>
+            salt_master_host:
+              value_template: <<node_master_ip>>
+        infra_config:
+          expression: <<node_hostname>>__startswith__cfg
+          cluster_param:
+            infra_config_address:
+              value_template: <<node_control_ip>>
+            infra_config_deploy_address:
+              value_template: <<node_deploy_ip>>
+            cluster_domain:
+              value_template: <<node_domain>>
+        openstack_control01:
+          expression: <<node_hostname>>__equals__ctl01
+          cluster_param:
+            openstack_control_node01_address:
+              value_template: <<node_control_ip>>
+        openstack_control02:
+          expression: <<node_hostname>>__equals__ctl02
+          cluster_param:
+            openstack_control_node02_address:
+              value_template: <<node_control_ip>>
+        openstack_control03:
+          expression: <<node_hostname>>__equals__ctl03
+          cluster_param:
+            openstack_control_node03_address:
+              value_template: <<node_control_ip>>
+        opencontrail_control01:
+          expression: <<node_hostname>>__equals__ntw01
+          cluster_param:
+            opencontrail_control_node01_address:
+              value_template: <<node_control_ip>>
+        opencontrail_control02:
+          expression: <<node_hostname>>__equals__ntw02
+          cluster_param:
+            opencontrail_control_node02_address:
+              value_template: <<node_control_ip>>
+        opencontrail_control03:
+          expression: <<node_hostname>>__equals__ntw03
+          cluster_param:
+            opencontrail_control_node03_address:
+              value_template: <<node_control_ip>>  
+        openstack_compute:
+          expression: <<node_hostname>>__startswith__cmp
+          node_class:
+            value_template:
+              - cluster.<<node_cluster>>.openstack.compute
+          node_param:
+            tenant_address:
+              value_template: <<node_tenant_ip>>
+            external_address:
+              value_template: <<node_external_ip>>
+      node:
+        openstack_control_node01:
+          classes:
+          - service.galera.master.cluster
+          params:
+            mysql_cluster_role: master
+            linux_system_codename: xenial
+            horizon_identity_host: ${_param:openstack_control_address}
+        openstack_control_node02:
+          classes:
+          - service.galera.slave.cluster
+          params:
+            mysql_cluster_role: slave
+            linux_system_codename: xenial
+            horizon_identity_host: ${_param:openstack_control_address}
+        openstack_control_node03:
+          classes:
+          - service.galera.slave.cluster
+          params:
+            mysql_cluster_role: slave
+            linux_system_codename: xenial
+            horizon_identity_host: ${_param:openstack_control_address}
+

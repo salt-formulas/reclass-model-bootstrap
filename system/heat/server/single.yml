@@ -1,0 +1,15 @@
+classes:
+- service.heat.server.single
+parameters:
+  linux:
+    system:
+      package:
+        python-pymysql:
+          fromrepo: ${_param:openstack_version}
+          version: latest
+  heat:
+    server:
+      stack_domain_admin:
+        name: heat_domain_admin
+        password: ${_param:heat_domain_admin_password}
+        domain: heat

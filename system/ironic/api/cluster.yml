@@ -1,0 +1,15 @@
+classes:
+- service.ironic.api.cluster
+parameters:
+  linux:
+    system:
+      package:
+        python-pymysql:
+          fromrepo: ${_param:openstack_version}
+          version: latest
+  ironic:
+    api:
+      enabled: true
+      version: ${_param:ironic_version}
+      bind:
+        address: ${_param:cluster_baremetal_local_address}

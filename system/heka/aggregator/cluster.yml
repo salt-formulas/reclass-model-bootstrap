@@ -1,0 +1,23 @@
+classes:
+- service.heka.aggregator.cluster
+- system.heka.server
+parameters:
+  heka:
+    aggregator:
+      influxdb_host: ${_param:heka_influxdb_host}
+      influxdb_port: ${_param:influxdb_port}
+      influxdb_database: lma
+      influxdb_username: lma
+      influxdb_password: ${_param:influxdb_stacklight_password}
+      poolsize: 200
+  keepalived:
+    cluster:
+      instance:
+        stacklight_monitor_vip:
+          notify_action:
+            master:
+              - service aggregator start
+            backup:
+              - service aggregator stop
+            fault:
+              - service aggregator stop

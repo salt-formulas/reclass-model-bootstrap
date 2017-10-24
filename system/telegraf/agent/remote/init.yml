@@ -1,0 +1,17 @@
+classes:
+- service.telegraf.agent.remote
+parameters:
+  telegraf:
+    remote_agent:
+      omit_hostname: true
+      dir:
+        config: /srv/volumes/local/telegraf
+        config_d: /srv/volumes/local/telegraf/telegraf.d
+      input:
+        internal:
+      output:
+        prometheus_client:
+          bind:
+            address: 0.0.0.0
+            port: 9126
+          engine: prometheus

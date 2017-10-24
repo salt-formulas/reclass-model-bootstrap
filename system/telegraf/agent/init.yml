@@ -1,0 +1,5 @@
+classes:
+- service.telegraf.agent
+- system.telegraf.agent.input.http_listener
+- system.telegraf.agent.output.prometheus_client
+- system.telegraf.sudo
